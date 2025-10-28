@@ -31,7 +31,7 @@ services:
       dockerfile: Dockerfile
     container_name: media-ranking-frontend
     ports:
-      - "127.0.0.1:8080:80"  # Bind to localhost only, nginx will proxy
+      - "127.0.0.1:7429:80"  # Bind to localhost only, nginx will proxy
     depends_on:
       backend:
         condition: service_started

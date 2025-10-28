@@ -6,7 +6,7 @@ mod models;
 mod utils;
 
 use axum::{
-    http::{HeaderValue, Method},
+    http::{header, HeaderValue, Method},
     middleware as axum_middleware,
     routing::{delete, get, patch, post},
     Router,
@@ -51,7 +51,11 @@ async fn main() {
             Method::DELETE,
             Method::OPTIONS,
         ])
-        .allow_headers(tower_http::cors::Any)
+        .allow_headers([
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            header::ACCEPT,
+        ])
         .allow_credentials(true);
 
     // Build router

@@ -4,7 +4,13 @@
 .DEFAULT_GOAL := help
 
 # Variables
-COMPOSE = docker-compose
+# Auto-detect docker-compose command (v1 uses hyphen, v2 uses space)
+COMPOSE := $(shell command -v docker-compose 2>/dev/null)
+ifeq ($(COMPOSE),)
+    COMPOSE = docker compose
+else
+    COMPOSE = docker-compose
+endif
 BACKEND_CONTAINER = media-ranking-backend
 FRONTEND_CONTAINER = media-ranking-frontend
 
