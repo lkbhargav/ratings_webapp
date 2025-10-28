@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: media-ranking-backend
     ports:
-      - "127.0.0.1:3000:3000"  # Bind to localhost only, nginx will proxy
+      - "127.0.0.1:34193:34193"  # Bind to localhost only, nginx will proxy
     volumes:
       - backend-data:/data
       - backend-uploads:/uploads
@@ -14,10 +14,10 @@ services:
       - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
       - UPLOAD_DIR=/uploads
       - HOST=0.0.0.0
-      - PORT=3000
+      - PORT=34193
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/admin/login || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:34193/api/admin/login || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
