@@ -1,0 +1,56 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: media-ranking-backend
+    ports:
+      - "127.0.0.1:3000:3000"  # Bind to localhost only, nginx will proxy
+    volumes:
+      - backend-data:/data
+      - backend-uploads:/uploads
+    environment:
+      - DATABASE_URL=sqlite:/data/media_ranking.db?mode=rwc
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - UPLOAD_DIR=/uploads
+      - HOST=0.0.0.0
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/admin/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - media-ranking-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: media-ranking-frontend
+    ports:
+      - "127.0.0.1:8080:80"  # Bind to localhost only, nginx will proxy
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - media-ranking-network
+
+volumes:
+  backend-data:
+    driver: local
+  backend-uploads:
+    driver: local
+
+networks:
+  media-ranking-network:
+    driver: bridge
