@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../../utils/api';
+import api, { getMediaUrl } from '../../utils/api';
 import type { Category, MediaFile } from '../../types';
 import Modal from '../Modal';
 
@@ -93,8 +93,6 @@ export default function Categories() {
       setError('Failed to delete category');
     }
   };
-
-  const getMediaUrl = (id: number) => `http://localhost:3000/api/media/${id}/serve`;
 
   return (
     <div style={styles.container}>

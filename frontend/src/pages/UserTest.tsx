@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import MediaPlayer from '../components/user/MediaPlayer';
 import RatingInput from '../components/user/RatingInput';
 import type { TestDetailsResponse, Rating } from '../types';
@@ -25,8 +25,8 @@ export default function UserTest() {
 
   const fetchTestData = async () => {
     try {
-      const response = await axios.get<TestDetailsResponse>(
-        `http://localhost:3000/api/test/${token}`
+      const response = await api.get<TestDetailsResponse>(
+        `/test/${token}`
       );
       setTestData(response.data);
     } catch (err: any) {
@@ -46,8 +46,8 @@ export default function UserTest() {
 
   const fetchUserRatings = async () => {
     try {
-      const response = await axios.get<Rating[]>(
-        `http://localhost:3000/api/test/${token}/ratings`
+      const response = await api.get<Rating[]>(
+        `/test/${token}/ratings`
       );
       setRatings(response.data);
     } catch (err) {
@@ -64,8 +64,8 @@ export default function UserTest() {
     setSuccessMessage('');
 
     try {
-      await axios.post(
-        `http://localhost:3000/api/test/${token}/ratings`,
+      await api.post(
+        `/test/${token}/ratings`,
         {
           media_file_id: currentMedia.id,
           stars,
@@ -104,7 +104,7 @@ export default function UserTest() {
 
   const handleFinishTest = async () => {
     try {
-      await axios.post(`http://localhost:3000/api/test/${token}/complete`);
+      await api.post(`/test/${token}/complete`);
       setTestCompleted(true);
       setSuccessMessage('Test completed! Thank you for your ratings. This link is now expired.');
     } catch (err: any) {

@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../../utils/api';
 import type { MediaFile } from '../../types';
 
 interface MediaPlayerProps {
@@ -5,7 +6,7 @@ interface MediaPlayerProps {
 }
 
 export default function MediaPlayer({ media }: MediaPlayerProps) {
-  const mediaUrl = `http://localhost:3000/api/media/${media.id}/serve`;
+  const mediaUrl = getMediaUrl(media.id);
 
   const renderMedia = () => {
     switch (media.media_type) {

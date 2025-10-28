@@ -33,4 +33,9 @@ api.interceptors.response.use(
   }
 );
 
+// Helper function to get media URL
+export const getMediaUrl = (mediaId: number): string => {
+  return `${API_BASE_URL}/media/${mediaId}/serve`;
+};
+
 export default api;

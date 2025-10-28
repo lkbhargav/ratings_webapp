@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../../utils/api';
+import api, { getMediaUrl } from '../../utils/api';
 import Modal from '../Modal';
 import type { Category, MediaFile } from '../../types';
 
@@ -130,8 +130,6 @@ export default function MediaUpload() {
       setError('Failed to update categories');
     }
   };
-
-  const getMediaUrl = (id: number) => `http://localhost:3000/api/media/${id}/serve`;
 
   return (
     <div style={styles.container}>
