@@ -18,6 +18,7 @@ frontend/.vite/
 
 # Environment
 .env
+.env.prod
 !.env.example
 
 # OS

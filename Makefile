@@ -102,6 +102,63 @@ rebuild-keep-data: ## Rebuild while preserving database and uploads
 	$(COMPOSE) up -d
 	@echo "$(GREEN)Rebuild complete with data preserved!$(NC)"
 
+rebuild-prod: ## Clean and rebuild for PRODUCTION (removes all data!)
+	@echo "$(CYAN)Validating production environment...$(NC)"
+	@if [ ! -f .env.prod ]; then \
+		echo "$(RED)Error: .env.prod file not found!$(NC)"; \
+		echo "$(YELLOW)Create .env.prod with production values$(NC)"; \
+		exit 1; \
+	fi
+	@if ! grep -q "FRONTEND_URL=https://" .env.prod; then \
+		echo "$(RED)Error: FRONTEND_URL not properly set in .env.prod$(NC)"; \
+		exit 1; \
+	fi
+	@if ! grep -q "VITE_API_BASE_URL=https://" .env.prod; then \
+		echo "$(RED)Error: VITE_API_BASE_URL not properly set in .env.prod$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)Environment validation passed$(NC)"
+	@echo "$(CYAN)Rebuilding for PRODUCTION from scratch...$(NC)"
+	$(COMPOSE) --env-file .env.prod down -v
+	$(COMPOSE) --env-file .env.prod build --no-cache
+	$(COMPOSE) --env-file .env.prod up -d
+	@echo "$(GREEN)Production rebuild complete!$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Don't forget to create an admin user:$(NC)"
+	@echo "  make seed-admin USERNAME=admin PASSWORD=admin123"
+
+rebuild-keep-data-prod: ## Rebuild for PRODUCTION while preserving database and uploads
+	@echo "$(CYAN)Validating production environment...$(NC)"
+	@if [ ! -f .env.prod ]; then \
+		echo "$(RED)Error: .env.prod file not found!$(NC)"; \
+		echo "$(YELLOW)Create .env.prod with production values$(NC)"; \
+		exit 1; \
+	fi
+	@if ! grep -q "FRONTEND_URL=https://" .env.prod; then \
+		echo "$(RED)Error: FRONTEND_URL not properly set in .env.prod$(NC)"; \
+		exit 1; \
+	fi
+	@if ! grep -q "VITE_API_BASE_URL=https://" .env.prod; then \
+		echo "$(RED)Error: VITE_API_BASE_URL not properly set in .env.prod$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)Environment validation passed$(NC)"
+	@echo "$(CYAN)Rebuilding for PRODUCTION with data preservation...$(NC)"
+	$(COMPOSE) --env-file .env.prod down
+	$(COMPOSE) --env-file .env.prod build --no-cache
+	$(COMPOSE) --env-file .env.prod up -d
+	@echo "$(GREEN)Production rebuild complete with data preserved!$(NC)"
+
+up-prod: ## Start services for PRODUCTION
+	@echo "$(CYAN)Starting PRODUCTION services...$(NC)"
+	$(COMPOSE) --env-file .env.prod up -d
+	@echo "$(GREEN)Production services started!$(NC)"
+
+down-prod: ## Stop PRODUCTION services
+	@echo "$(CYAN)Stopping PRODUCTION services...$(NC)"
+	$(COMPOSE) --env-file .env.prod down
+	@echo "$(GREEN)Production services stopped!$(NC)"
+
 dev-backend: ## Run backend locally (without Docker)
 	@echo "$(CYAN)Starting backend in development mode...$(NC)"
 	cd backend && cargo run --bin server
