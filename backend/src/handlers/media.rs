@@ -374,7 +374,10 @@ pub async fn serve_media(
         let body = Body::from_stream(stream);
 
         Ok((
-            [(header::CONTENT_TYPE, media.mime_type)],
+            [
+                (header::CONTENT_TYPE, media.mime_type),
+                (header::CACHE_CONTROL, "no-cache, no-store, must-revalidate".to_string()),
+            ],
             body,
         ).into_response())
     } else {

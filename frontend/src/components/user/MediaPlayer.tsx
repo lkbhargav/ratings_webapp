@@ -12,7 +12,7 @@ export default function MediaPlayer({ media }: MediaPlayerProps) {
     switch (media.media_type) {
       case 'audio':
         return (
-          <audio controls style={styles.media}>
+          <audio key={media.id} controls style={styles.media}>
             <source src={mediaUrl} type={media.mime_type} />
             Your browser does not support the audio element.
           </audio>
