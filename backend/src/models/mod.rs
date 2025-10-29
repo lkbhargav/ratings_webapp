@@ -48,6 +48,7 @@ pub struct Test {
     pub name: String,
     pub created_at: String,
     pub status: String,
+    pub created_by: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]

@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from 'react';
 import { getMediaUrl } from '../../utils/api';
 import type { MediaFile } from '../../types';
 
@@ -6,13 +7,70 @@ interface MediaPlayerProps {
 }
 
 export default function MediaPlayer({ media }: MediaPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [wasPlaying, setWasPlaying] = useState(false);
   const mediaUrl = getMediaUrl(media.id);
+
+  // Reset audio/video when media changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    const activeMedia = audio || video;
+
+    // Capture if media was playing before switching
+    if (activeMedia && !activeMedia.paused) {
+      setWasPlaying(true);
+    } else {
+      setWasPlaying(false);
+    }
+
+    // Reset media
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.load();
+    }
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+      video.load();
+    }
+  }, [media.id]);
+
+  // Auto-play if previous media was playing
+  useEffect(() => {
+    if (!wasPlaying) return;
+
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    const activeMedia = audio || video;
+
+    if (activeMedia) {
+      // Wait for media to be ready before playing
+      const handleCanPlay = () => {
+        activeMedia.play().catch(error => {
+          // Auto-play might be blocked by browser policy
+          console.warn('Auto-play was prevented:', error);
+          // User will need to click play manually
+        });
+      };
+
+      activeMedia.addEventListener('canplay', handleCanPlay, { once: true });
+
+      // Cleanup
+      return () => {
+        activeMedia.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+  }, [media.id, wasPlaying]);
 
   const renderMedia = () => {
     switch (media.media_type) {
       case 'audio':
         return (
-          <audio key={media.id} controls style={styles.media}>
+          <audio ref={audioRef} key={media.id} controls style={styles.media}>
             <source src={mediaUrl} type={media.mime_type} />
             Your browser does not support the audio element.
           </audio>
@@ -20,7 +78,7 @@ export default function MediaPlayer({ media }: MediaPlayerProps) {
 
       case 'video':
         return (
-          <video controls style={styles.media}>
+          <video ref={videoRef} key={media.id} controls style={styles.media}>
             <source src={mediaUrl} type={media.mime_type} />
             Your browser does not support the video element.
           </video>

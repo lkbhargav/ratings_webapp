@@ -143,6 +143,22 @@ export default function Tests() {
     }
   };
 
+  const handleDeleteTest = async (testId: number) => {
+    if (!confirm('Are you sure you want to delete this test? This action cannot be undone.')) return;
+
+    try {
+      await api.delete(`/admin/tests/${testId}`);
+      fetchTests();
+      setError('');
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        setError('You can only delete tests you created. Super admins can delete any test.');
+      } else {
+        setError('Failed to delete test');
+      }
+    }
+  };
+
 
   return (
     <div style={styles.container}>
@@ -286,6 +302,12 @@ export default function Tests() {
                       Close Test
                     </button>
                   )}
+                  <button
+                    onClick={() => handleDeleteTest(test.id)}
+                    style={styles.deleteButton}
+                  >
+                    Delete Test
+                  </button>
                 </div>
               </div>
             ))
@@ -591,6 +613,15 @@ const styles = {
   closeButton: {
     padding: '0.5rem 1rem',
     backgroundColor: '#f59e0b',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+  },
+  deleteButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
     borderRadius: '4px',

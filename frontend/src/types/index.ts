@@ -20,6 +20,7 @@ export interface Test {
   name: string;
   created_at: string;
   status: 'open' | 'closed';
+  created_by?: string;
 }
 
 export interface TestUser {

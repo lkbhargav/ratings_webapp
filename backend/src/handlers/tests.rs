@@ -14,8 +14,9 @@ pub async fn create_test(
     axum::Extension(claims): axum::Extension<Claims>,
     Json(payload): Json<CreateTestRequest>,
 ) -> Result<Json<Test>, StatusCode> {
-    let result = sqlx::query("INSERT INTO tests (name) VALUES (?)")
+    let result = sqlx::query("INSERT INTO tests (name, created_by) VALUES (?, ?)")
         .bind(&payload.name)
+        .bind(&claims.sub)
         .execute(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -158,6 +159,58 @@ pub async fn close_test(
         }
     } else {
         Err(StatusCode::NOT_FOUND)
+    }
+}
+
+pub async fn delete_test(
+    State(pool): State<SqlitePool>,
+    axum::Extension(claims): axum::Extension<Claims>,
+    axum::extract::Path(test_id): axum::extract::Path<i64>,
+) -> Result<StatusCode, StatusCode> {
+    // Fetch the test to check ownership
+    let test: Option<Test> = sqlx::query_as::<_, Test>("SELECT * FROM tests WHERE id = ?")
+        .bind(test_id)
+        .fetch_optional(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    match test {
+        None => Err(StatusCode::NOT_FOUND),
+        Some(test) => {
+            // Check if user is super admin or test creator
+            let is_authorized = claims.is_super_admin
+                || test.created_by.as_ref() == Some(&claims.sub);
+
+            if !is_authorized {
+                return Err(StatusCode::FORBIDDEN);
+            }
+
+            // Delete the test (cascades to test_categories, test_users, and ratings)
+            let result = sqlx::query("DELETE FROM tests WHERE id = ?")
+                .bind(test_id)
+                .execute(&pool)
+                .await
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+            if result.rows_affected() == 0 {
+                Err(StatusCode::NOT_FOUND)
+            } else {
+                // Log test deletion
+                log_activity(
+                    &pool,
+                    Some(&claims.sub),
+                    None,
+                    "delete_test",
+                    Some("test"),
+                    Some(test_id),
+                    Some(json!({"name": test.name, "created_by": test.created_by})),
+                    None,
+                    None,
+                ).await.ok();
+
+                Ok(StatusCode::NO_CONTENT)
+            }
+        }
     }
 }
 

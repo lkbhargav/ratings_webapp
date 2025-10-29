@@ -100,6 +100,9 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     // Migration: Create activity_logs table for tracking user and admin activities
     create_activity_logs_table(pool).await?;
 
+    // Migration: Add created_by column to tests table for ownership tracking
+    add_created_by_to_tests(pool).await?;
+
     Ok(())
 }
 
@@ -311,6 +314,25 @@ async fn create_activity_logs_table(pool: &SqlitePool) -> Result<(), sqlx::Error
             .await?;
 
         sqlx::query("CREATE INDEX idx_activity_logs_action ON activity_logs(action)")
+            .execute(pool)
+            .await?;
+    }
+
+    Ok(())
+}
+
+async fn add_created_by_to_tests(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Check if column exists
+    let has_column: bool = sqlx::query_scalar(
+        "SELECT COUNT(*) > 0 FROM pragma_table_info('tests')
+         WHERE name = 'created_by'"
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap_or(false);
+
+    if !has_column {
+        sqlx::query("ALTER TABLE tests ADD COLUMN created_by TEXT")
             .execute(pool)
             .await?;
     }

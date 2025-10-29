@@ -15,6 +15,7 @@ services:
       - UPLOAD_DIR=/uploads
       - HOST=0.0.0.0
       - PORT=34193
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:7429}
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:34193/api/admin/login || exit 1"]
@@ -29,6 +30,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:34193/api}
     container_name: media-ranking-frontend
     ports:
       - "127.0.0.1:7429:80"  # Bind to localhost only, nginx will proxy

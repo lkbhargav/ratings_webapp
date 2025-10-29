@@ -40,9 +40,14 @@ async fn main() {
         .await
         .expect("Failed to run migrations");
 
-    // CORS configuration - Production: Allow only from frontend domain
+    // CORS configuration - Use environment variable for frontend URL
+    let frontend_url = std::env::var("FRONTEND_URL")
+        .unwrap_or_else(|_| "http://localhost:5173".to_string());
+
+    tracing::info!("CORS configured for origin: {}", frontend_url);
+
     let cors = CorsLayer::new()
-        .allow_origin("https://surveys.nocturnal.health".parse::<HeaderValue>().unwrap())
+        .allow_origin(frontend_url.parse::<HeaderValue>().unwrap())
         .allow_methods([
             Method::GET,
             Method::POST,
@@ -119,6 +124,11 @@ async fn main() {
             "/api/admin/tests",
             post(handlers::tests::create_test)
                 .get(handlers::tests::list_tests)
+                .layer(axum_middleware::from_fn(middleware::auth::jwt_auth)),
+        )
+        .route(
+            "/api/admin/tests/:id",
+            delete(handlers::tests::delete_test)
                 .layer(axum_middleware::from_fn(middleware::auth::jwt_auth)),
         )
         .route(
