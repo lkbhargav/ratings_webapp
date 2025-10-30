@@ -3,7 +3,7 @@ use crate::{
         AddTestUserRequest, Claims, CreateTestRequest, MediaFile, MediaFileStats, Rating, RatingWithUser,
         Test, TestResultsResponse, TestUser, TestUserResponse,
     },
-    utils::{auth::generate_one_time_token, activity_logger::log_activity},
+    utils::{auth::generate_one_time_token, activity_logger::log_activity, email_service},
 };
 use axum::{extract::State, http::StatusCode, Json};
 use serde_json::json;
@@ -14,8 +14,9 @@ pub async fn create_test(
     axum::Extension(claims): axum::Extension<Claims>,
     Json(payload): Json<CreateTestRequest>,
 ) -> Result<Json<Test>, StatusCode> {
-    let result = sqlx::query("INSERT INTO tests (name, created_by) VALUES (?, ?)")
+    let result = sqlx::query("INSERT INTO tests (name, description, created_by) VALUES (?, ?, ?)")
         .bind(&payload.name)
+        .bind(&payload.description)
         .bind(&claims.sub)
         .execute(&pool)
         .await
@@ -45,7 +46,7 @@ pub async fn create_test(
         "create_test",
         Some("test"),
         Some(test_id),
-        Some(json!({"name": payload.name, "category_id": payload.category_id})),
+        Some(json!({"name": payload.name, "description": payload.description, "category_id": payload.category_id})),
         None,
         None,
     ).await.ok();
@@ -68,6 +69,20 @@ pub async fn add_test_user(
     axum::extract::Path(test_id): axum::extract::Path<i64>,
     Json(payload): Json<AddTestUserRequest>,
 ) -> Result<Json<TestUserResponse>, StatusCode> {
+    // Check if user already exists for this test
+    let existing_user: Option<TestUser> = sqlx::query_as::<_, TestUser>(
+        "SELECT * FROM test_users WHERE test_id = ? AND email = ?"
+    )
+    .bind(test_id)
+    .bind(&payload.email)
+    .fetch_optional(&pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    if existing_user.is_some() {
+        return Err(StatusCode::CONFLICT);
+    }
+
     let token = generate_one_time_token();
 
     let result = sqlx::query("INSERT INTO test_users (test_id, email, one_time_token) VALUES (?, ?, ?)")
@@ -83,6 +98,35 @@ pub async fn add_test_user(
     let frontend_url = std::env::var("FRONTEND_URL")
         .unwrap_or_else(|_| "http://localhost:5173".to_string());
     let link = format!("{}/test/{}", frontend_url, token);
+
+    // Fetch test details for email
+    let test = sqlx::query_as::<_, Test>("SELECT * FROM tests WHERE id = ?")
+        .bind(test_id)
+        .fetch_optional(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Send email invitation (fire and forget, don't block on failure)
+    if let Some(test) = test {
+        let email = payload.email.clone();
+        let test_name = test.name.clone();
+        let test_description = test.description.clone();
+        let link_clone = link.clone();
+
+        tokio::spawn(async move {
+            match email_service::send_test_invitation_email(
+                &email,
+                &test_name,
+                test_description.as_deref(),
+                &link_clone,
+            )
+            .await
+            {
+                Ok(_) => tracing::info!("Email sent successfully to {}", email),
+                Err(e) => tracing::error!("Failed to send email to {}: {}", email, e),
+            }
+        });
+    }
 
     // Log test user addition
     log_activity(

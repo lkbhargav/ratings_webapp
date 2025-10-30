@@ -46,6 +46,7 @@ pub struct UpdateMediaCategoriesRequest {
 pub struct Test {
     pub id: i64,
     pub name: String,
+    pub description: Option<String>,
     pub created_at: String,
     pub status: String,
     pub created_by: Option<String>,
@@ -106,6 +107,7 @@ pub struct CreateCategoryRequest {
 #[derive(Debug, Deserialize)]
 pub struct CreateTestRequest {
     pub name: String,
+    pub description: Option<String>,
     pub category_id: i64,
 }
 

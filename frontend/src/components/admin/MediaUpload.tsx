@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdUpload, MdVisibility, MdEdit, MdDelete, MdClose } from 'react-icons/md';
 import api, { getMediaUrl } from '../../utils/api';
 import Modal from '../Modal';
 import type { Category, MediaFile } from '../../types';
@@ -176,8 +177,10 @@ export default function MediaUpload() {
             ...styles.button,
             ...(loading || files.length === 0 || selectedCategoryIds.length === 0 ? styles.buttonDisabled : {})
           }}
+          className="icon-button touch-target"
         >
-          {loading ? 'Uploading...' : `Upload${files.length > 0 ? ` (${files.length})` : ''}`}
+          <MdUpload />
+          <span className="icon-button-text">{loading ? 'Uploading...' : `Upload${files.length > 0 ? ` (${files.length})` : ''}`}</span>
         </button>
       </form>
 
@@ -198,8 +201,10 @@ export default function MediaUpload() {
                   onClick={() => handleRemoveFile(index)}
                   style={styles.removeButton}
                   disabled={loading}
+                  className="icon-button"
+                  aria-label="Remove file"
                 >
-                  ✕
+                  <MdClose />
                 </button>
               </div>
             ))}
@@ -240,26 +245,32 @@ export default function MediaUpload() {
               <span style={styles.itemDate}>
                 {new Date(media.uploaded_at).toLocaleDateString()}
               </span>
-              <div style={styles.itemActions}>
+              <div style={styles.itemActions} className="button-group">
                 <a
                   href={getMediaUrl(media.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={styles.viewButton}
+                  className="icon-button touch-target"
                 >
-                  View
+                  <MdVisibility />
+                  <span className="icon-button-text">View</span>
                 </a>
                 <button
                   onClick={() => handleEditCategories(media)}
                   style={styles.editButton}
+                  className="icon-button touch-target"
                 >
-                  Edit Categories
+                  <MdEdit />
+                  <span className="icon-button-text">Edit Categories</span>
                 </button>
                 <button
                   onClick={() => handleDelete(media.id)}
                   style={styles.deleteButton}
+                  className="icon-button touch-target"
                 >
-                  Delete
+                  <MdDelete />
+                  <span className="icon-button-text">Delete</span>
                 </button>
               </div>
             </div>
@@ -309,7 +320,7 @@ export default function MediaUpload() {
 const styles = {
   container: {
     backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
@@ -414,6 +425,7 @@ const styles = {
     padding: '1rem',
     borderBottom: '1px solid #e5e7eb',
     gap: '1rem',
+    flexWrap: 'wrap' as const,
   },
   badge: {
     display: 'inline-block',

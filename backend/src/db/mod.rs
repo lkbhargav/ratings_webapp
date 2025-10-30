@@ -103,6 +103,9 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     // Migration: Add created_by column to tests table for ownership tracking
     add_created_by_to_tests(pool).await?;
 
+    // Migration: Add description column to tests table for test context
+    add_description_to_tests(pool).await?;
+
     Ok(())
 }
 
@@ -333,6 +336,25 @@ async fn add_created_by_to_tests(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
     if !has_column {
         sqlx::query("ALTER TABLE tests ADD COLUMN created_by TEXT")
+            .execute(pool)
+            .await?;
+    }
+
+    Ok(())
+}
+
+async fn add_description_to_tests(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Check if column exists
+    let has_column: bool = sqlx::query_scalar(
+        "SELECT COUNT(*) > 0 FROM pragma_table_info('tests')
+         WHERE name = 'description'"
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap_or(false);
+
+    if !has_column {
+        sqlx::query("ALTER TABLE tests ADD COLUMN description TEXT")
             .execute(pool)
             .await?;
     }

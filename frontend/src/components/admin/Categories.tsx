@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdAdd, MdDelete, MdVisibility } from 'react-icons/md';
 import api, { getMediaUrl } from '../../utils/api';
 import type { Category, MediaFile } from '../../types';
 import Modal from '../Modal';
@@ -100,7 +101,7 @@ export default function Categories() {
 
       {error && <div style={styles.error}>{error}</div>}
 
-      <form onSubmit={handleCreate} style={styles.form}>
+      <form onSubmit={handleCreate} style={styles.form} className="button-group">
         <input
           type="text"
           value={newCategoryName}
@@ -120,8 +121,9 @@ export default function Categories() {
           <option value="image">Image</option>
           <option value="text">Text</option>
         </select>
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? 'Creating...' : 'Create Category'}
+        <button type="submit" disabled={loading} style={styles.button} className="icon-button touch-target">
+          <MdAdd />
+          <span className="icon-button-text">{loading ? 'Creating...' : 'Create Category'}</span>
         </button>
       </form>
 
@@ -149,8 +151,10 @@ export default function Categories() {
                   handleDelete(category.id);
                 }}
                 style={styles.deleteButton}
+                className="icon-button touch-target"
               >
-                Delete
+                <MdDelete />
+                <span className="icon-button-text">Delete</span>
               </button>
             </div>
           ))
@@ -175,20 +179,24 @@ export default function Categories() {
                 <span style={styles.mediaInfo}>
                   {new Date(media.uploaded_at).toLocaleDateString()}
                 </span>
-                <div style={styles.mediaActions}>
+                <div style={styles.mediaActions} className="button-group">
                   <a
                     href={getMediaUrl(media.id)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.viewButton}
+                    className="icon-button touch-target"
                   >
-                    View
+                    <MdVisibility />
+                    <span className="icon-button-text">View</span>
                   </a>
                   <button
                     onClick={() => handleDeleteMedia(media.id)}
                     style={styles.deleteMediaButton}
+                    className="icon-button touch-target"
                   >
-                    Delete
+                    <MdDelete />
+                    <span className="icon-button-text">Delete</span>
                   </button>
                 </div>
               </div>
@@ -203,7 +211,7 @@ export default function Categories() {
 const styles = {
   container: {
     backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
@@ -225,9 +233,11 @@ const styles = {
     display: 'flex',
     gap: '0.5rem',
     marginBottom: '1.5rem',
+    flexWrap: 'wrap' as const,
   },
   input: {
     flex: 1,
+    minWidth: '200px',
     padding: '0.5rem',
     border: '1px solid #d1d5db',
     borderRadius: '4px',
@@ -266,6 +276,8 @@ const styles = {
     padding: '1rem',
     border: '1px solid #e5e7eb',
     borderRadius: '4px',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const,
   },
   itemClickable: {
     flex: 1,
@@ -321,6 +333,7 @@ const styles = {
     padding: '1rem',
     borderBottom: '1px solid #e5e7eb',
     gap: '1rem',
+    flexWrap: 'wrap' as const,
   },
   mediaTypeBadge: {
     display: 'inline-block',

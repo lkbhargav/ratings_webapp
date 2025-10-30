@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdRefresh, MdNavigateBefore, MdNavigateNext, MdClose, MdVisibility } from 'react-icons/md';
 import type { ActivityLog as ActivityLogType, ActivityLogResponse } from '../../types';
 import api from '../../utils/api';
 
@@ -207,8 +208,9 @@ export default function ActivityLog() {
           </div>
         </div>
 
-        <button onClick={resetFilters} style={styles.resetButton}>
-          Reset Filters
+        <button onClick={resetFilters} style={styles.resetButton} className="icon-button touch-target">
+          <MdRefresh />
+          <span className="icon-button-text">Reset Filters</span>
         </button>
       </div>
 
@@ -219,7 +221,7 @@ export default function ActivityLog() {
         <div style={styles.empty}>No activity logs found</div>
       ) : (
         <>
-          <div style={styles.tableContainer}>
+          <div style={styles.tableContainer} className="table-container">
             <table style={styles.table}>
               <thead>
                 <tr>
@@ -269,8 +271,10 @@ export default function ActivityLog() {
                           <button
                             onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
                             style={styles.detailsButton}
+                            className="icon-button"
                           >
-                            {isExpanded ? 'Hide Details' : 'Show Details'}
+                            <MdVisibility />
+                            <span className="icon-button-text">{isExpanded ? 'Hide Details' : 'Show Details'}</span>
                           </button>
                         ) : (
                           <span style={styles.noDetails}>-</span>
@@ -297,8 +301,10 @@ export default function ActivityLog() {
                       <button
                         onClick={() => setExpandedLogId(null)}
                         style={styles.closeButton}
+                        className="icon-button"
+                        aria-label="Close details"
                       >
-                        ✕
+                        <MdClose />
                       </button>
                     </div>
                     <pre style={styles.detailsJson}>
@@ -311,7 +317,7 @@ export default function ActivityLog() {
           )}
 
           {/* Pagination */}
-          <div style={styles.pagination}>
+          <div style={styles.pagination} className="button-group">
             <button
               onClick={() => setPage(Math.max(0, page - 1))}
               disabled={page === 0}
@@ -319,8 +325,10 @@ export default function ActivityLog() {
                 ...styles.paginationButton,
                 ...(page === 0 ? styles.paginationButtonDisabled : {}),
               }}
+              className="icon-button touch-target"
             >
-              Previous
+              <MdNavigateBefore />
+              <span className="icon-button-text">Previous</span>
             </button>
             <span style={styles.paginationInfo}>
               Page {page + 1} of {totalPages || 1}
@@ -332,8 +340,10 @@ export default function ActivityLog() {
                 ...styles.paginationButton,
                 ...(page >= totalPages - 1 ? styles.paginationButtonDisabled : {}),
               }}
+              className="icon-button touch-target"
             >
-              Next
+              <span className="icon-button-text">Next</span>
+              <MdNavigateNext />
             </button>
           </div>
         </>
@@ -344,13 +354,15 @@ export default function ActivityLog() {
 
 const styles = {
   container: {
-    padding: '2rem',
+    padding: 'clamp(1rem, 2vw, 2rem)',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '2rem',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem',
   },
   title: {
     fontSize: '1.5rem',

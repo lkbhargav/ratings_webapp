@@ -1,0 +1,127 @@
+/* Responsive utility classes for components that need media queries */
+
+/* Icon button utility - show icon only on mobile */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.icon-button-text {
+  display: inline;
+}
+
+@media (max-width: 767px) {
+  .icon-button {
+    padding: 0.75rem;
+  }
+
+  .icon-button-text {
+    display: none;
+  }
+
+  .icon-button svg {
+    font-size: 1.25rem;
+  }
+}
+
+/* Responsive padding utility */
+.responsive-padding {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.responsive-padding-sm {
+  padding: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+/* Scrollable table container for mobile */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+  .table-container {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Responsive flex wrap utility */
+.flex-wrap-mobile {
+  display: flex;
+}
+
+@media (max-width: 767px) {
+  .flex-wrap-mobile {
+    flex-wrap: wrap;
+  }
+}
+
+/* Stack buttons on mobile */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group > button,
+  .button-group > a {
+    width: 100%;
+  }
+}
+
+/* Responsive tabs */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 767px) {
+  .tabs-container {
+    flex-wrap: wrap;
+  }
+}
+
+/* Touch-friendly minimum sizes */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hide text on mobile, show on desktop */
+.hide-mobile {
+  display: inline;
+}
+
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* Show only on mobile */
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .show-mobile {
+    display: inline;
+  }
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { removeToken } from '../utils/auth';
+import { MdCategory, MdPermMedia, MdAssignment, MdBarChart, MdPeople, MdHistory, MdLogout } from 'react-icons/md';
 import Categories from '../components/admin/Categories';
 import MediaUpload from '../components/admin/MediaUpload';
 import Tests from '../components/admin/Tests';
@@ -25,20 +26,23 @@ export default function AdminDashboard() {
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>Dashboard</h1>
-        <button onClick={handleLogout} style={styles.logoutButton}>
-          Logout
+        <button onClick={handleLogout} style={styles.logoutButton} className="icon-button">
+          <MdLogout />
+          <span className="icon-button-text">Logout</span>
         </button>
       </header>
 
-      <div style={styles.tabs}>
+      <div style={styles.tabs} className="tabs-container">
         <button
           onClick={() => setActiveTab('categories')}
           style={{
             ...styles.tab,
             ...(activeTab === 'categories' ? styles.activeTab : {}),
           }}
+          className="icon-button"
         >
-          Categories
+          <MdCategory />
+          <span className="icon-button-text">Categories</span>
         </button>
         <button
           onClick={() => setActiveTab('media')}
@@ -46,8 +50,10 @@ export default function AdminDashboard() {
             ...styles.tab,
             ...(activeTab === 'media' ? styles.activeTab : {}),
           }}
+          className="icon-button"
         >
-          Media Files
+          <MdPermMedia />
+          <span className="icon-button-text">Media Files</span>
         </button>
         <button
           onClick={() => setActiveTab('tests')}
@@ -55,8 +61,10 @@ export default function AdminDashboard() {
             ...styles.tab,
             ...(activeTab === 'tests' ? styles.activeTab : {}),
           }}
+          className="icon-button"
         >
-          Tests
+          <MdAssignment />
+          <span className="icon-button-text">Tests</span>
         </button>
         <button
           onClick={() => setActiveTab('results')}
@@ -64,8 +72,10 @@ export default function AdminDashboard() {
             ...styles.tab,
             ...(activeTab === 'results' ? styles.activeTab : {}),
           }}
+          className="icon-button"
         >
-          Results
+          <MdBarChart />
+          <span className="icon-button-text">Results</span>
         </button>
         {isSuperAdmin && (
           <button
@@ -74,8 +84,10 @@ export default function AdminDashboard() {
               ...styles.tab,
               ...(activeTab === 'admins' ? styles.activeTab : {}),
             }}
+            className="icon-button"
           >
-            Admin Management
+            <MdPeople />
+            <span className="icon-button-text">Admin Management</span>
           </button>
         )}
         <button
@@ -84,8 +96,10 @@ export default function AdminDashboard() {
             ...styles.tab,
             ...(activeTab === 'activity-log' ? styles.activeTab : {}),
           }}
+          className="icon-button"
         >
-          Activity Log
+          <MdHistory />
+          <span className="icon-button-text">Activity Log</span>
         </button>
       </div>
 
@@ -108,19 +122,20 @@ const styles = {
   },
   header: {
     backgroundColor: 'white',
-    padding: '1rem 2rem',
+    padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 2rem)',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem',
   },
   title: {
-    fontSize: '1.5rem',
+    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
     fontWeight: 'bold',
     color: '#1f2937',
   },
   logoutButton: {
-    padding: '0.5rem 1rem',
     backgroundColor: '#ef4444',
     color: 'white',
     border: 'none',
@@ -133,9 +148,11 @@ const styles = {
     backgroundColor: 'white',
     display: 'flex',
     borderBottom: '1px solid #e5e7eb',
+    gap: '0.25rem',
+    overflowX: 'auto' as const,
   },
   tab: {
-    padding: '1rem 2rem',
+    padding: 'clamp(0.75rem, 2vw, 1rem)',
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
@@ -143,12 +160,13 @@ const styles = {
     fontWeight: '500',
     color: '#6b7280',
     borderBottom: '2px solid transparent',
+    whiteSpace: 'nowrap' as const,
   },
   activeTab: {
     color: '#3b82f6',
     borderBottom: '2px solid #3b82f6',
   },
   content: {
-    padding: '2rem',
+    padding: 'clamp(1rem, 2vw, 2rem)',
   },
 };

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdVisibility, MdClose, MdDelete } from 'react-icons/md';
 import api from '../../utils/api';
 import Modal from '../Modal';
 import type { Category, Test, TestUser, TestUserResponse } from '../../types';
@@ -7,6 +8,7 @@ export default function Tests() {
   const [tests, setTests] = useState<Test[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [testName, setTestName] = useState('');
+  const [testDescription, setTestDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedTest, setSelectedTest] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState('');
@@ -50,9 +52,11 @@ export default function Tests() {
     try {
       await api.post('/admin/tests', {
         name: testName,
+        description: testDescription.trim() || null,
         category_id: selectedCategory,
       });
       setTestName('');
+      setTestDescription('');
       setSelectedCategory(null);
       fetchTests();
     } catch (err) {
@@ -81,8 +85,12 @@ export default function Tests() {
       );
       setGeneratedLink(response.data.link);
       setUserEmail('');
-    } catch (err) {
-      setError('Failed to add user');
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        setError('A link already exists for this email address in this test');
+      } else {
+        setError('Failed to add user');
+      }
     } finally {
       setLoading(false);
     }
@@ -178,6 +186,15 @@ export default function Tests() {
             required
             disabled={loading}
           />
+          <textarea
+            value={testDescription}
+            onChange={(e) => setTestDescription(e.target.value)}
+            placeholder="Test description (optional, max 500 chars)"
+            style={styles.textarea}
+            maxLength={500}
+            rows={3}
+            disabled={loading}
+          />
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(Number(e.target.value))}
@@ -207,6 +224,7 @@ export default function Tests() {
 
       <div style={styles.section}>
         <h3 style={styles.subheading}>Add User to Test</h3>
+        {error && <div style={styles.error}>{error}</div>}
         <form onSubmit={handleAddUser} style={styles.form}>
           <select
             value={selectedTest || ''}
@@ -287,26 +305,32 @@ export default function Tests() {
                     {test.status}
                   </span>
                 </div>
-                <div style={styles.actions}>
+                <div style={styles.actions} className="button-group">
                   <button
                     onClick={() => handleViewDetails(test)}
                     style={styles.viewButton}
+                    className="icon-button touch-target"
                   >
-                    View Details
+                    <MdVisibility />
+                    <span className="icon-button-text">View Details</span>
                   </button>
                   {test.status === 'open' && (
                     <button
                       onClick={() => handleCloseTest(test.id)}
                       style={styles.closeButton}
+                      className="icon-button touch-target"
                     >
-                      Close Test
+                      <MdClose />
+                      <span className="icon-button-text">Close Test</span>
                     </button>
                   )}
                   <button
                     onClick={() => handleDeleteTest(test.id)}
                     style={styles.deleteButton}
+                    className="icon-button touch-target"
                   >
-                    Delete Test
+                    <MdDelete />
+                    <span className="icon-button-text">Delete Test</span>
                   </button>
                 </div>
               </div>
@@ -444,6 +468,14 @@ const styles = {
     border: '1px solid #d1d5db',
     borderRadius: '4px',
     fontSize: '0.875rem',
+  },
+  textarea: {
+    padding: '0.5rem',
+    border: '1px solid #d1d5db',
+    borderRadius: '4px',
+    fontSize: '0.875rem',
+    fontFamily: 'inherit',
+    resize: 'vertical' as const,
   },
   select: {
     padding: '0.5rem',

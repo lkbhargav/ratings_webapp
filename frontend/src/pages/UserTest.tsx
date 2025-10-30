@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { MdNavigateBefore, MdNavigateNext, MdCheck } from 'react-icons/md';
 import api from '../utils/api';
 import MediaPlayer from '../components/user/MediaPlayer';
 import RatingInput from '../components/user/RatingInput';
@@ -145,6 +146,9 @@ export default function UserTest() {
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>{testData.test.name}</h1>
+        {testData.test.description && (
+          <p style={styles.description}>{testData.test.description}</p>
+        )}
         <div style={styles.progressContainer}>
           <div style={styles.progressBar}>
             <div
@@ -161,7 +165,7 @@ export default function UserTest() {
       </header>
 
       <div style={styles.content}>
-        <div style={styles.navigation}>
+        <div style={styles.navigation} className="button-group">
           <button
             onClick={() => setCurrentIndex(currentIndex - 1)}
             disabled={currentIndex === 0 || testCompleted}
@@ -169,8 +173,11 @@ export default function UserTest() {
               ...styles.navButton,
               ...(currentIndex === 0 || testCompleted ? styles.navButtonDisabled : {}),
             }}
+            className="icon-button touch-target"
+            aria-label="Previous"
           >
-            ← Previous
+            <MdNavigateBefore />
+            <span className="icon-button-text">Previous</span>
           </button>
           <span style={styles.navText}>
             {currentIndex + 1} / {testData.media_files.length}
@@ -183,8 +190,11 @@ export default function UserTest() {
                 ...styles.finishButton,
                 ...(!areAllMediaRated() || testCompleted ? styles.finishButtonDisabled : {}),
               }}
+              className="icon-button touch-target"
+              aria-label="Finish Test"
             >
-              {testCompleted ? 'Test Completed ✓' : 'Finish Test'}
+              <MdCheck />
+              <span className="icon-button-text">{testCompleted ? 'Test Completed ✓' : 'Finish Test'}</span>
             </button>
           ) : (
             <button
@@ -194,8 +204,11 @@ export default function UserTest() {
                 ...styles.navButton,
                 ...(testCompleted ? styles.navButtonDisabled : {}),
               }}
+              className="icon-button touch-target"
+              aria-label="Next"
             >
-              Next →
+              <span className="icon-button-text">Next</span>
+              <MdNavigateNext />
             </button>
           )}
         </div>
@@ -240,14 +253,21 @@ const styles = {
   },
   header: {
     backgroundColor: 'white',
-    padding: '1.5rem 2rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2rem)',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   title: {
-    fontSize: '1.75rem',
+    fontSize: 'clamp(1.25rem, 3vw, 1.75rem)',
     fontWeight: 'bold',
     color: '#1f2937',
+    marginBottom: '0.5rem',
+  },
+  description: {
+    fontSize: '0.938rem',
+    color: '#6b7280',
+    lineHeight: '1.5',
     marginBottom: '1rem',
+    whiteSpace: 'pre-wrap' as const,
   },
   progressContainer: {
     marginTop: '0.5rem',
@@ -272,7 +292,7 @@ const styles = {
   content: {
     maxWidth: '800px',
     margin: '0 auto',
-    padding: '2rem',
+    padding: 'clamp(1rem, 2vw, 2rem)',
   },
   navigation: {
     display: 'flex',

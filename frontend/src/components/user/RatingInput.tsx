@@ -147,7 +147,7 @@ export default function RatingInput({
 const styles = {
   form: {
     backgroundColor: '#f9fafb',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     marginTop: '1rem',
   },
@@ -165,6 +165,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.25rem',
+    flexWrap: 'wrap' as const,
   },
   star: {
     background: 'none',

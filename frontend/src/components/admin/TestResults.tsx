@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdBarChart, MdPerson } from 'react-icons/md';
 import api from '../../utils/api';
 import type { Test, TestResultsResponse } from '../../types';
 import StarRating from '../StarRating';
@@ -76,8 +77,10 @@ export default function TestResults() {
                 ...styles.tab,
                 ...(viewMode === 'aggregated' ? styles.activeTab : {}),
               }}
+              className="icon-button"
             >
-              Aggregated
+              <MdBarChart />
+              <span className="icon-button-text">Aggregated</span>
             </button>
             <button
               onClick={() => setViewMode('individual')}
@@ -85,8 +88,10 @@ export default function TestResults() {
                 ...styles.tab,
                 ...(viewMode === 'individual' ? styles.activeTab : {}),
               }}
+              className="icon-button"
             >
-              Individual
+              <MdPerson />
+              <span className="icon-button-text">Individual</span>
             </button>
           </div>
         )}
@@ -102,29 +107,31 @@ export default function TestResults() {
               {results.aggregated.length === 0 ? (
                 <p style={styles.empty}>No ratings yet for this test.</p>
               ) : (
-                <div style={styles.table}>
-                  <div style={styles.tableHeader}>
-                    <div style={styles.tableCell}>Media File</div>
-                    <div style={styles.tableCell}>Type</div>
-                    <div style={styles.tableCell}>Average Rating</div>
-                    <div style={styles.tableCell}>Total Ratings</div>
-                  </div>
-                  {results.aggregated.map((stat) => (
-                    <div key={stat.media_file.id} style={styles.tableRow}>
-                      <div style={styles.tableCell}>
-                        {stat.media_file.filename}
-                      </div>
-                      <div style={styles.tableCell}>
-                        <span style={styles.badge}>
-                          {stat.media_file.media_type}
-                        </span>
-                      </div>
-                      <div style={styles.tableCell}>
-                        <StarRating rating={stat.average_stars} size="small" showLabel />
-                      </div>
-                      <div style={styles.tableCell}>{stat.total_ratings}</div>
+                <div className="table-container">
+                  <div style={styles.table}>
+                    <div style={styles.tableHeader}>
+                      <div style={styles.tableCell}>Media File</div>
+                      <div style={styles.tableCell}>Type</div>
+                      <div style={styles.tableCell}>Average Rating</div>
+                      <div style={styles.tableCell}>Total Ratings</div>
                     </div>
-                  ))}
+                    {results.aggregated.map((stat) => (
+                      <div key={stat.media_file.id} style={styles.tableRow}>
+                        <div style={styles.tableCell}>
+                          {stat.media_file.filename}
+                        </div>
+                        <div style={styles.tableCell}>
+                          <span style={styles.badge}>
+                            {stat.media_file.media_type}
+                          </span>
+                        </div>
+                        <div style={styles.tableCell}>
+                          <StarRating rating={stat.average_stars} size="small" showLabel />
+                        </div>
+                        <div style={styles.tableCell}>{stat.total_ratings}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -176,7 +183,7 @@ export default function TestResults() {
 const styles = {
   container: {
     backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },

@@ -124,7 +124,7 @@ const styles = {
   container: {
     backgroundColor: 'white',
     borderRadius: '8px',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
   },
   header: {
@@ -132,6 +132,8 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '1rem',
+    flexWrap: 'wrap' as const,
+    gap: '0.5rem',
   },
   filename: {
     fontSize: '1rem',
@@ -168,7 +170,7 @@ const styles = {
   },
   textFrame: {
     width: '100%',
-    height: '400px',
+    height: 'clamp(300px, 50vh, 400px)',
     border: '1px solid #e5e7eb',
     borderRadius: '4px',
   },

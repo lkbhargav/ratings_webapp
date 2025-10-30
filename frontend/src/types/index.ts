@@ -18,6 +18,7 @@ export interface MediaFile {
 export interface Test {
   id: number;
   name: string;
+  description?: string;
   created_at: string;
   status: 'open' | 'closed';
   created_by?: string;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MdPersonAdd, MdDelete } from 'react-icons/md';
 import api from '../../utils/api';
 import type { Admin } from '../../types';
 
@@ -100,8 +101,9 @@ export default function AdminManagement() {
               disabled={loading}
               minLength={6}
             />
-            <button type="submit" disabled={loading} style={styles.createButton}>
-              {loading ? 'Creating...' : 'Create Admin'}
+            <button type="submit" disabled={loading} style={styles.createButton} className="icon-button touch-target">
+              <MdPersonAdd />
+              <span className="icon-button-text">{loading ? 'Creating...' : 'Create Admin'}</span>
             </button>
           </div>
         </form>
@@ -131,8 +133,10 @@ export default function AdminManagement() {
                     <button
                       onClick={() => handleDelete(admin.id)}
                       style={styles.deleteButton}
+                      className="icon-button touch-target"
                     >
-                      Delete
+                      <MdDelete />
+                      <span className="icon-button-text">Delete</span>
                     </button>
                   )}
                 </div>
@@ -172,14 +176,14 @@ const styles = {
   },
   createSection: {
     backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     marginBottom: '1.5rem',
   },
   listSection: {
     backgroundColor: 'white',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
@@ -236,6 +240,8 @@ const styles = {
     border: '1px solid #e5e7eb',
     borderRadius: '4px',
     backgroundColor: '#f9fafb',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const,
   },
   adminInfo: {
     display: 'flex',

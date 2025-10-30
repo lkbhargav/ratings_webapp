@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { MdClose } from 'react-icons/md';
 
 interface ModalProps {
   isOpen: boolean;
@@ -31,8 +32,8 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div style={styles.header}>
           <h2 style={styles.title}>{title}</h2>
-          <button style={styles.closeButton} onClick={onClose}>
-            ✕
+          <button style={styles.closeButton} onClick={onClose} className="icon-button" aria-label="Close modal">
+            <MdClose />
           </button>
         </div>
         <div style={styles.content}>{children}</div>
@@ -68,7 +69,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     borderBottom: '1px solid #e5e7eb',
   },
   title: {
@@ -87,7 +88,7 @@ const styles = {
     lineHeight: 1,
   },
   content: {
-    padding: '1.5rem',
+    padding: 'clamp(1rem, 2vw, 1.5rem)',
     overflowY: 'auto' as const,
   },
 };
