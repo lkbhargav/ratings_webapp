@@ -137,6 +137,7 @@ pub struct TestDetailsResponse {
 pub struct RatingWithUser {
     pub rating: Rating,
     pub user_email: String,
+    pub media_file: MediaFile,
 }
 
 #[derive(Debug, Serialize)]

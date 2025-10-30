@@ -332,11 +332,13 @@ pub async fn get_test_results(
     .collect();
 
     // Get individual ratings
-    let individual: Vec<RatingWithUser> = sqlx::query_as::<_, (i64, i64, i64, f64, Option<String>, String, String)>(
+    let individual: Vec<RatingWithUser> = sqlx::query_as::<_, (i64, i64, i64, f64, Option<String>, String, String, i64, String, String, String, String, String)>(
         r#"
-        SELECT r.id, r.test_user_id, r.media_file_id, r.stars, r.comment, r.rated_at, tu.email
+        SELECT r.id, r.test_user_id, r.media_file_id, r.stars, r.comment, r.rated_at, tu.email,
+               mf.id, mf.filename, mf.file_path, mf.media_type, mf.mime_type, mf.uploaded_at
         FROM ratings r
         INNER JOIN test_users tu ON r.test_user_id = tu.id
+        INNER JOIN media_files mf ON r.media_file_id = mf.id
         WHERE tu.test_id = ?
         ORDER BY r.rated_at DESC
         "#
@@ -346,7 +348,7 @@ pub async fn get_test_results(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
     .into_iter()
-    .map(|(id, test_user_id, media_file_id, stars, comment, rated_at, email)| {
+    .map(|(id, test_user_id, media_file_id, stars, comment, rated_at, email, mf_id, filename, file_path, media_type, mime_type, uploaded_at)| {
         RatingWithUser {
             rating: Rating {
                 id,
@@ -357,6 +359,14 @@ pub async fn get_test_results(
                 rated_at,
             },
             user_email: email,
+            media_file: MediaFile {
+                id: mf_id,
+                filename,
+                file_path,
+                media_type,
+                mime_type,
+                uploaded_at,
+            },
         }
     })
     .collect();

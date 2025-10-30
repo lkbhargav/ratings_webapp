@@ -61,6 +61,7 @@ export interface TestDetailsResponse {
 export interface RatingWithUser {
   rating: Rating;
   user_email: string;
+  media_file: MediaFile;
 }
 
 export interface MediaFileStats {

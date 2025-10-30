@@ -147,6 +147,10 @@ export default function TestResults() {
                           {new Date(item.rating.rated_at).toLocaleString()}
                         </span>
                       </div>
+                      <div style={styles.mediaInfo}>
+                        <span style={styles.mediaFilename}>{item.media_file.filename}</span>
+                        <span style={styles.mediaBadge}>{item.media_file.media_type}</span>
+                      </div>
                       <div style={styles.ratingBody}>
                         <div style={styles.ratingStars}>
                           <StarRating rating={Number(item.rating.stars)} size="medium" showLabel />
@@ -294,6 +298,30 @@ const styles = {
   ratingDate: {
     fontSize: '0.75rem',
     color: '#6b7280',
+  },
+  mediaInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '0.75rem',
+    paddingBottom: '0.75rem',
+    borderBottom: '1px solid #f3f4f6',
+  },
+  mediaFilename: {
+    fontSize: '0.875rem',
+    color: '#4b5563',
+    fontWeight: '500',
+    flex: 1,
+  },
+  mediaBadge: {
+    display: 'inline-block',
+    padding: '0.25rem 0.5rem',
+    backgroundColor: '#dbeafe',
+    color: '#1e40af',
+    borderRadius: '4px',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+    textTransform: 'uppercase' as const,
   },
   ratingBody: {
     display: 'flex',

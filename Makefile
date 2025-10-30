@@ -29,11 +29,11 @@ help: ## Show this help message
 
 build: ## Build all Docker images
 	@echo "$(CYAN)Building Docker images...$(NC)"
-	$(COMPOSE) build
+	$(COMPOSE) --env-file .env build
 
 up: ## Start all services
 	@echo "$(CYAN)Starting services...$(NC)"
-	$(COMPOSE) up -d
+	$(COMPOSE) --env-file .env up -d
 	@echo "$(GREEN)Services started!$(NC)"
 	@echo "Frontend: http://localhost:5173"
 	@echo "Backend API: http://localhost:3000"
@@ -43,7 +43,7 @@ up: ## Start all services
 
 down: ## Stop all services
 	@echo "$(CYAN)Stopping services...$(NC)"
-	$(COMPOSE) down
+	$(COMPOSE) --env-file .env down
 	@echo "$(GREEN)Services stopped!$(NC)"
 
 stop: ## Stop services without removing containers
@@ -86,10 +86,13 @@ clean: ## Remove containers, volumes, and images
 	@echo "$(GREEN)Cleanup complete!$(NC)"
 
 rebuild: ## Clean and rebuild everything (removes all data!)
+	@echo "$(RED)WARNING: This will DELETE all data including database and uploads!$(NC)"
+	@echo "Press Ctrl+C to cancel, or Enter to continue..."
+	@read dummy
 	@echo "$(CYAN)Rebuilding from scratch...$(NC)"
-	$(COMPOSE) down -v
-	$(COMPOSE) build --no-cache
-	$(COMPOSE) up -d
+	$(COMPOSE) --env-file .env down -v
+	$(COMPOSE) --env-file .env build --no-cache
+	$(COMPOSE) --env-file .env up -d
 	@echo "$(GREEN)Rebuild complete!$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Don't forget to create an admin user:$(NC)"
@@ -97,9 +100,9 @@ rebuild: ## Clean and rebuild everything (removes all data!)
 
 rebuild-keep-data: ## Rebuild while preserving database and uploads
 	@echo "$(CYAN)Rebuilding with data preservation...$(NC)"
-	$(COMPOSE) down
-	$(COMPOSE) build --no-cache
-	$(COMPOSE) up -d
+	$(COMPOSE) --env-file .env down
+	$(COMPOSE) --env-file .env build --no-cache
+	$(COMPOSE) --env-file .env up -d
 	@echo "$(GREEN)Rebuild complete with data preserved!$(NC)"
 
 rebuild-prod: ## Clean and rebuild for PRODUCTION (removes all data!)
@@ -118,6 +121,9 @@ rebuild-prod: ## Clean and rebuild for PRODUCTION (removes all data!)
 		exit 1; \
 	fi
 	@echo "$(GREEN)Environment validation passed$(NC)"
+	@echo "$(RED)WARNING: This will DELETE all PRODUCTION data including database and uploads!$(NC)"
+	@echo "Press Ctrl+C to cancel, or Enter to continue..."
+	@read dummy
 	@echo "$(CYAN)Rebuilding for PRODUCTION from scratch...$(NC)"
 	$(COMPOSE) --env-file .env.prod down -v
 	$(COMPOSE) --env-file .env.prod build --no-cache
