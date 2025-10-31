@@ -4,9 +4,10 @@ import type { MediaFile } from '../../types';
 
 interface MediaPlayerProps {
   media: MediaFile;
+  loop?: boolean;
 }
 
-export default function MediaPlayer({ media }: MediaPlayerProps) {
+export default function MediaPlayer({ media, loop = false }: MediaPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [wasPlaying, setWasPlaying] = useState(false);
@@ -70,7 +71,7 @@ export default function MediaPlayer({ media }: MediaPlayerProps) {
     switch (media.media_type) {
       case 'audio':
         return (
-          <audio ref={audioRef} key={media.id} controls style={styles.media}>
+          <audio ref={audioRef} key={media.id} controls loop={loop} style={styles.media}>
             <source src={mediaUrl} type={media.mime_type} />
             Your browser does not support the audio element.
           </audio>
@@ -78,7 +79,7 @@ export default function MediaPlayer({ media }: MediaPlayerProps) {
 
       case 'video':
         return (
-          <video ref={videoRef} key={media.id} controls style={styles.media}>
+          <video ref={videoRef} key={media.id} controls loop={loop} style={styles.media}>
             <source src={mediaUrl} type={media.mime_type} />
             Your browser does not support the video element.
           </video>

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { MdVisibility, MdClose, MdDelete } from 'react-icons/md';
+import toast from 'react-hot-toast';
 import api from '../../utils/api';
 import Modal from '../Modal';
+import { formatDate, formatDateTime } from '../../utils/dateFormatters';
 import type { Category, Test, TestUser, TestUserResponse } from '../../types';
 
 export default function Tests() {
@@ -9,6 +11,7 @@ export default function Tests() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [testName, setTestName] = useState('');
   const [testDescription, setTestDescription] = useState('');
+  const [loopMedia, setLoopMedia] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedTest, setSelectedTest] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState('');
@@ -54,9 +57,11 @@ export default function Tests() {
         name: testName,
         description: testDescription.trim() || null,
         category_id: selectedCategory,
+        loop_media: loopMedia,
       });
       setTestName('');
       setTestDescription('');
+      setLoopMedia(true);
       setSelectedCategory(null);
       fetchTests();
     } catch (err) {
@@ -98,7 +103,7 @@ export default function Tests() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Link copied to clipboard!');
+      toast.success('Link copied to clipboard!');
     });
   };
 
@@ -144,9 +149,9 @@ export default function Tests() {
       }
     } catch (err: any) {
       if (err.response?.status === 403) {
-        alert('Cannot delete user from closed test');
+        toast.error('Cannot delete user from closed test');
       } else {
-        alert('Failed to delete user');
+        toast.error('Failed to delete user');
       }
     }
   };
@@ -195,6 +200,17 @@ export default function Tests() {
             rows={3}
             disabled={loading}
           />
+          <label style={styles.checkbox}>
+            <input
+              type="checkbox"
+              checked={loopMedia}
+              onChange={(e) => setLoopMedia(e.target.checked)}
+              disabled={loading}
+            />
+            <span style={styles.checkboxLabel}>
+              Loop audio/video media (recommended for consistent playback)
+            </span>
+          </label>
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(Number(e.target.value))}
@@ -292,7 +308,7 @@ export default function Tests() {
                 <div>
                   <h4 style={styles.itemTitle}>{test.name}</h4>
                   <p style={styles.itemDate}>
-                    Created: {new Date(test.created_at).toLocaleDateString()}
+                    Created: {formatDate(test.created_at)}
                   </p>
                   <span
                     style={{
@@ -360,7 +376,7 @@ export default function Tests() {
               </div>
               <div style={styles.modalInfoRow}>
                 <span style={styles.modalLabel}>Created:</span>
-                <span>{new Date(modalTest.created_at).toLocaleString()}</span>
+                <span>{formatDateTime(modalTest.created_at)}</span>
               </div>
               <div style={styles.modalInfoRow}>
                 <span style={styles.modalLabel}>Total Users:</span>
@@ -388,9 +404,9 @@ export default function Tests() {
                           }
                         >
                           {user.completed_at
-                            ? `Completed ${new Date(user.completed_at).toLocaleString()}`
+                            ? `Completed ${formatDateTime(user.completed_at)}`
                             : user.accessed_at
-                            ? `Accessed ${new Date(user.accessed_at).toLocaleString()}`
+                            ? `Accessed ${formatDateTime(user.accessed_at)}`
                             : 'Not Accessed'}
                         </span>
                       </div>

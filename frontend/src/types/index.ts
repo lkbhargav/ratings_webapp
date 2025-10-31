@@ -22,6 +22,7 @@ export interface Test {
   created_at: string;
   status: 'open' | 'closed';
   created_by?: string;
+  loop_media: boolean;
 }
 
 export interface TestUser {

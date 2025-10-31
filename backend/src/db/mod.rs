@@ -106,6 +106,9 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     // Migration: Add description column to tests table for test context
     add_description_to_tests(pool).await?;
 
+    // Migration: Add loop_media column to tests table for media playback control
+    add_loop_media_to_tests(pool).await?;
+
     Ok(())
 }
 
@@ -355,6 +358,26 @@ async fn add_description_to_tests(pool: &SqlitePool) -> Result<(), sqlx::Error> 
 
     if !has_column {
         sqlx::query("ALTER TABLE tests ADD COLUMN description TEXT")
+            .execute(pool)
+            .await?;
+    }
+
+    Ok(())
+}
+
+async fn add_loop_media_to_tests(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Check if column exists
+    let has_column: bool = sqlx::query_scalar(
+        "SELECT COUNT(*) > 0 FROM pragma_table_info('tests')
+         WHERE name = 'loop_media'"
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap_or(false);
+
+    if !has_column {
+        // Add column with default value of 1 (true)
+        sqlx::query("ALTER TABLE tests ADD COLUMN loop_media INTEGER NOT NULL DEFAULT 1")
             .execute(pool)
             .await?;
     }

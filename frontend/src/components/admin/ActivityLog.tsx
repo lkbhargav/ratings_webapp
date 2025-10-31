@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MdRefresh, MdNavigateBefore, MdNavigateNext, MdClose, MdVisibility } from 'react-icons/md';
+import { formatDateTimeWithTimezone } from '../../utils/dateFormatters';
 import type { ActivityLog as ActivityLogType, ActivityLogResponse } from '../../types';
 import api from '../../utils/api';
 
@@ -77,7 +78,7 @@ export default function ActivityLog() {
   };
 
   const formatTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
+    return formatDateTimeWithTimezone(timestamp);
   };
 
   const parseDetails = (details: string | null) => {

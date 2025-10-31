@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MdUpload, MdVisibility, MdEdit, MdDelete, MdClose } from 'react-icons/md';
 import api, { getMediaUrl } from '../../utils/api';
+import { formatDate } from '../../utils/dateFormatters';
 import Modal from '../Modal';
 import type { Category, MediaFile } from '../../types';
 
@@ -243,7 +244,7 @@ export default function MediaUpload() {
                 ))}
               </div>
               <span style={styles.itemDate}>
-                {new Date(media.uploaded_at).toLocaleDateString()}
+                {formatDate(media.uploaded_at)}
               </span>
               <div style={styles.itemActions} className="button-group">
                 <a

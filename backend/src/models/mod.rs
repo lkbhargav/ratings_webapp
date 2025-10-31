@@ -50,6 +50,7 @@ pub struct Test {
     pub created_at: String,
     pub status: String,
     pub created_by: Option<String>,
+    pub loop_media: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
@@ -109,6 +110,7 @@ pub struct CreateTestRequest {
     pub name: String,
     pub description: Option<String>,
     pub category_id: i64,
+    pub loop_media: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]

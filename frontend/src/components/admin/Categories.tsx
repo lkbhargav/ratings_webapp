@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MdAdd, MdDelete, MdVisibility } from 'react-icons/md';
 import api, { getMediaUrl } from '../../utils/api';
+import { formatDate } from '../../utils/dateFormatters';
 import type { Category, MediaFile } from '../../types';
 import Modal from '../Modal';
 
@@ -142,7 +143,7 @@ export default function Categories() {
                   <span style={styles.mediaBadge}>{category.media_type}</span>
                 </div>
                 <p style={styles.itemDate}>
-                  Created: {new Date(category.created_at).toLocaleDateString()}
+                  Created: {formatDate(category.created_at)}
                 </p>
               </div>
               <button
@@ -177,7 +178,7 @@ export default function Categories() {
                 <span style={styles.mediaTypeBadge}>{media.media_type}</span>
                 <span style={styles.mediaTitle}>{media.filename}</span>
                 <span style={styles.mediaInfo}>
-                  {new Date(media.uploaded_at).toLocaleDateString()}
+                  {formatDate(media.uploaded_at)}
                 </span>
                 <div style={styles.mediaActions} className="button-group">
                   <a

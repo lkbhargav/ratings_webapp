@@ -17,40 +17,56 @@ export default function RatingInput({
   const [comment, setComment] = useState(initialComment);
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
   const isInitialMount = useRef(true);
+  const prevStarsRef = useRef(initialStars);
+  const prevCommentRef = useRef(initialComment);
 
+  // Update state when navigating between media files
   useEffect(() => {
     setStars(initialStars);
     setComment(initialComment);
+    prevStarsRef.current = initialStars;
+    prevCommentRef.current = initialComment;
   }, [initialStars, initialComment]);
 
-  // Auto-save immediately when stars change
+  // Unified auto-save: immediate for stars, debounced for comments
   useEffect(() => {
+    // Skip on initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
 
-    if (stars > 0) {
-      onSubmit(stars, comment);
-    }
-  }, [stars]);
-
-  // Auto-save with debounce when comment changes
-  useEffect(() => {
-    if (isInitialMount.current) {
+    // Skip if no stars (can't save comment without stars)
+    if (stars === 0) {
       return;
     }
 
-    if (stars === 0) {
-      return; // Don't save comment without stars
+    // Check if this is a user change or just navigation
+    const starsChanged = stars !== prevStarsRef.current;
+    const commentChanged = comment !== prevCommentRef.current;
+
+    if (!starsChanged && !commentChanged) {
+      return; // No actual changes
     }
 
-    const timeoutId = setTimeout(() => {
+    // If stars changed, save immediately
+    if (starsChanged) {
+      prevStarsRef.current = stars;
+      prevCommentRef.current = comment;
       onSubmit(stars, comment);
-    }, 1500);
+      return;
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [comment]);
+    // If only comment changed, debounce the save
+    if (commentChanged) {
+      const timeoutId = setTimeout(() => {
+        prevCommentRef.current = comment;
+        onSubmit(stars, comment);
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [stars, comment, onSubmit]);
 
   const handleStarClick = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
     const button = e.currentTarget;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MdPersonAdd, MdDelete } from 'react-icons/md';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/dateFormatters';
 import type { Admin } from '../../types';
 
 export default function AdminManagement() {
@@ -123,7 +124,7 @@ export default function AdminManagement() {
                     <span style={styles.superAdminBadge}>Super Admin</span>
                   )}
                   <span style={styles.adminDate}>
-                    Created: {new Date(admin.created_at).toLocaleDateString()}
+                    Created: {formatDate(admin.created_at)}
                   </span>
                 </div>
                 <div style={styles.adminActions}>

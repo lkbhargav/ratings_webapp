@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { MdNavigateBefore, MdNavigateNext, MdCheck } from 'react-icons/md';
+import toast from 'react-hot-toast';
 import api from '../utils/api';
 import MediaPlayer from '../components/user/MediaPlayer';
 import RatingInput from '../components/user/RatingInput';
@@ -13,6 +14,7 @@ export default function UserTest() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [finishingTest, setFinishingTest] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [testCompleted, setTestCompleted] = useState(false);
@@ -56,7 +58,7 @@ export default function UserTest() {
     }
   };
 
-  const handleRatingSubmit = async (stars: number, comment: string) => {
+  const handleRatingSubmit = useCallback(async (stars: number, comment: string) => {
     if (!testData) return;
 
     const currentMedia = testData.media_files[currentIndex];
@@ -74,7 +76,28 @@ export default function UserTest() {
         }
       );
 
-      fetchUserRatings();
+      // Update local ratings state without refetching
+      setRatings((prevRatings) => {
+        const existingIndex = prevRatings.findIndex(r => r.media_file_id === currentMedia.id);
+        const newRating: Rating = {
+          id: existingIndex >= 0 ? prevRatings[existingIndex].id : Date.now(), // Use existing id or temp id
+          test_user_id: prevRatings[0]?.test_user_id || 0,
+          media_file_id: currentMedia.id,
+          stars,
+          comment: comment || null,
+          rated_at: new Date().toISOString(),
+        };
+
+        if (existingIndex >= 0) {
+          // Update existing rating
+          const updated = [...prevRatings];
+          updated[existingIndex] = newRating;
+          return updated;
+        } else {
+          // Add new rating
+          return [...prevRatings, newRating];
+        }
+      });
     } catch (err: any) {
       if (err.response?.status === 403) {
         setError('This test has been closed.');
@@ -84,7 +107,7 @@ export default function UserTest() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [testData, currentIndex, token]);
 
   const getCurrentRating = (mediaId: number): Rating | undefined => {
     return ratings.find((r) => r.media_file_id === mediaId);
@@ -104,16 +127,25 @@ export default function UserTest() {
   };
 
   const handleFinishTest = async () => {
+    setFinishingTest(true);
+    setError('');
+    setSuccessMessage('');
+
     try {
       await api.post(`/test/${token}/complete`);
       setTestCompleted(true);
+      toast.success('Test completed! Thank you for your ratings. This link is now expired.');
       setSuccessMessage('Test completed! Thank you for your ratings. This link is now expired.');
     } catch (err: any) {
       if (err.response?.status === 404) {
         setError('Test not found.');
+        toast.error('Test not found.');
       } else {
         setError('Failed to complete test. Please try again.');
+        toast.error('Failed to complete test. Please try again.');
       }
+    } finally {
+      setFinishingTest(false);
     }
   };
 
@@ -185,16 +217,18 @@ export default function UserTest() {
           {currentIndex === testData.media_files.length - 1 ? (
             <button
               onClick={handleFinishTest}
-              disabled={!areAllMediaRated() || testCompleted}
+              disabled={!areAllMediaRated() || testCompleted || finishingTest}
               style={{
                 ...styles.finishButton,
-                ...(!areAllMediaRated() || testCompleted ? styles.finishButtonDisabled : {}),
+                ...(!areAllMediaRated() || testCompleted || finishingTest ? styles.finishButtonDisabled : {}),
               }}
               className="icon-button touch-target"
               aria-label="Finish Test"
             >
               <MdCheck />
-              <span className="icon-button-text">{testCompleted ? 'Test Completed ✓' : 'Finish Test'}</span>
+              <span className="icon-button-text">
+                {testCompleted ? 'Test Completed ✓' : finishingTest ? 'Saving...' : 'Finish Test'}
+              </span>
             </button>
           ) : (
             <button
@@ -213,12 +247,13 @@ export default function UserTest() {
           )}
         </div>
 
-        <MediaPlayer media={currentMedia} />
+        <MediaPlayer media={currentMedia} loop={testData.test.loop_media} />
 
         {error && <div style={styles.errorMessage}>{error}</div>}
         {successMessage && <div style={styles.successMessage}>{successMessage}</div>}
 
         <RatingInput
+          key={currentMedia.id}
           initialStars={currentRating ? Number(currentRating.stars) : 0}
           initialComment={currentRating?.comment || ''}
           onSubmit={handleRatingSubmit}

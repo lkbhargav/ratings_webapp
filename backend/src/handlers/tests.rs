@@ -14,10 +14,13 @@ pub async fn create_test(
     axum::Extension(claims): axum::Extension<Claims>,
     Json(payload): Json<CreateTestRequest>,
 ) -> Result<Json<Test>, StatusCode> {
-    let result = sqlx::query("INSERT INTO tests (name, description, created_by) VALUES (?, ?, ?)")
+    let loop_media = payload.loop_media.unwrap_or(true); // Default to true
+
+    let result = sqlx::query("INSERT INTO tests (name, description, created_by, loop_media) VALUES (?, ?, ?, ?)")
         .bind(&payload.name)
         .bind(&payload.description)
         .bind(&claims.sub)
+        .bind(loop_media)
         .execute(&pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -46,7 +49,7 @@ pub async fn create_test(
         "create_test",
         Some("test"),
         Some(test_id),
-        Some(json!({"name": payload.name, "description": payload.description, "category_id": payload.category_id})),
+        Some(json!({"name": payload.name, "description": payload.description, "category_id": payload.category_id, "loop_media": loop_media})),
         None,
         None,
     ).await.ok();

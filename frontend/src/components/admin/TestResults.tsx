@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MdBarChart, MdPerson } from 'react-icons/md';
 import api from '../../utils/api';
+import { formatDateTime } from '../../utils/dateFormatters';
 import type { Test, TestResultsResponse } from '../../types';
 import StarRating from '../StarRating';
 
@@ -151,7 +152,7 @@ export default function TestResults() {
                           {item.user_email}
                         </strong>
                         <span style={styles.ratingDate}>
-                          {new Date(item.rating.rated_at).toLocaleString()}
+                          {formatDateTime(item.rating.rated_at)}
                         </span>
                       </div>
                       <div style={styles.mediaInfo}>
