@@ -19,6 +19,7 @@ export default function RatingInput({
   const isInitialMount = useRef(true);
   const prevStarsRef = useRef(initialStars);
   const prevCommentRef = useRef(initialComment);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Update state when navigating between media files
   useEffect(() => {
@@ -60,8 +61,20 @@ export default function RatingInput({
     // If only comment changed, debounce the save
     if (commentChanged) {
       const timeoutId = setTimeout(() => {
+        // Save cursor position before submit
+        const cursorPosition = textareaRef.current?.selectionStart || 0;
+        const wasFocused = document.activeElement === textareaRef.current;
+
         prevCommentRef.current = comment;
         onSubmit(stars, comment);
+
+        // Restore focus and cursor position after save
+        if (wasFocused && textareaRef.current) {
+          requestAnimationFrame(() => {
+            textareaRef.current?.focus();
+            textareaRef.current?.setSelectionRange(cursorPosition, cursorPosition);
+          });
+        }
       }, 500);
 
       return () => clearTimeout(timeoutId);
@@ -145,6 +158,7 @@ export default function RatingInput({
       <div style={styles.section}>
         <label style={styles.label}>Comments (optional):</label>
         <textarea
+          ref={textareaRef}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Share your thoughts about this media..."
